@@ -1,59 +1,70 @@
+import questions from './questions.json';
+import { Questions } from './types';
 import { useState } from 'react';
-import classNames from 'classnames';
-import { ReactComponent as ReactLogo } from './assets/react.svg';
-import { ReactComponent as ViteLogo } from './assets/vite.svg';
-import { ReactComponent as TypescriptLogo } from './assets/typescript.svg';
-import { ReactComponent as ScssLogo } from './assets/scss.svg';
-import styles from './App.module.scss';
+import StatBar from './components/StatBar';
+import QuestionComp from './components/Question';
+import App_module from './App.module.scss';
+import Reset from './components/Reset';
+import Answer_module from './components/Answer.module.scss';
+import Classnames from 'classnames';
 
 function App() {
-    const [count, setCount] = useState(0);
+    const allQuestions = questions as Questions;
+
+    const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
+    const [correctAnswers, setCorrectAnswers] = useState(0);
+    const [incorrectAnswers, setIncorrectAnswers] = useState(0);
+
+    const [waitingToAdvance, setWaitingToAdvance] = useState(false);
+
+    const onSubmit = (correct: boolean) => {
+        if (correct) setCorrectAnswers(correctAnswers + 1);
+        else setIncorrectAnswers(incorrectAnswers + 1);
+
+        setWaitingToAdvance(true);
+    };
+
+    const advance = () => {
+        setWaitingToAdvance(false);
+        setCurrentQuestionIdx(currentQuestionIdx + 1);
+    };
+
+    const reset = () => {
+        setCurrentQuestionIdx(0);
+        setCorrectAnswers(0);
+        setIncorrectAnswers(0);
+        setWaitingToAdvance(false);
+    };
+
+    if (currentQuestionIdx >= allQuestions.questions.length)
+        return (
+            <Reset
+                totalQuestions={allQuestions.questions.length}
+                correctQuestions={correctAnswers}
+                onPress={reset}
+            />
+        );
 
     return (
-        <div className={styles.App}>
-            <div>
-                <a href="https://vitejs.dev" target="_blank">
-                    <ViteLogo
-                        height="6em"
-                        width="6em"
-                        className={classNames(styles.logo)}
-                        title="Vite logo"
-                    />
-                </a>
-                <a href="https://reactjs.org" target="_blank">
-                    <ReactLogo
-                        height="6em"
-                        width="6em"
-                        className={classNames(styles.logo, styles.react)}
-                        title="React logo"
-                    />
-                </a>
-                <a href="https://www.typescriptlang.org/" target="_blank">
-                    <TypescriptLogo
-                        height="6em"
-                        width="6em"
-                        className={classNames(styles.logo, styles.ts)}
-                        title="Typescript logo"
-                    />
-                </a>
-                <a href="https://sass-lang.com/" target="_blank">
-                    <ScssLogo
-                        height="6em"
-                        width="6em"
-                        className={classNames(styles.logo, styles.scss)}
-                        title="SCSS logo"
-                    />
-                </a>
-            </div>
-            <div className={styles.card}>
-                <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
-                <p>
-                    Edit <code>src/App.tsx</code> and save to test HMR
-                </p>
-            </div>
-            <p className={styles['read-the-docs']}>
-                Click on the Vite and React logos to learn more
-            </p>
+        <div className={App_module.app}>
+            <StatBar
+                currentQuestion={currentQuestionIdx + 1}
+                totalQuestions={allQuestions.questions.length}
+                correct={correctAnswers}
+                incorrect={incorrectAnswers}
+            />
+            <QuestionComp
+                question={allQuestions.questions[currentQuestionIdx]}
+                onSubmit={onSubmit}
+            />
+            {waitingToAdvance && (
+                <button
+                    onClick={advance}
+                    className={Classnames(Answer_module.answer, App_module['next-btn'])}
+                >
+                    Next Question...
+                </button>
+            )}
         </div>
     );
 }

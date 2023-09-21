@@ -1,0 +1,13 @@
+.answer {
+  width: 47.5%;
+  padding: 10px;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  font-family: Verdana, sans-serif;
+  font-weight: 800;
+  border: 1px solid #0a0a0a;
+  border-radius: 10px;
+  &:hover {
+    border: 1px solid rgb(0, 0, 255);
+  }
+}
